@@ -1,0 +1,32 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.zerock.myapp.mapper.UserMapper">
+    <select id='selectUser' resultType="org.zerock.myapp.domain.user.UserVO">
+    	SELECT 
+    		userid,
+    		uname,
+    		userpw,
+    		upoint
+    	FROM tbl_user
+    	WHERE userid = #{userid} AND userpw = #{userpw}
+    </select>
+    
+    <update id="updateUserWithRememberMe">
+        UPDATE tbl_user
+        SET 
+            rememberme = #{rememberme},
+            rememberage = #{rememberage}
+
+        WHERE userid = #{userid}
+    </update>
+
+    <select id="selectUserByRememberMe" resultType="org.zerock.myapp.domain.user.UserVO">
+        SELECT userid, userpw, uname, upoint
+        FROM tbl_user
+        WHERE rememberme = #{rememberme}
+        AND rememberage > current_date
+    </select>
+ 
+</mapper>

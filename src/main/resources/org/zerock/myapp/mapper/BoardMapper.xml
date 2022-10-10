@@ -1,0 +1,101 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.zerock.myapp.mapper.BoardMapper">
+    <!-- 새로운 게시물 작성 -->
+    <insert id="insert">
+        INSERT INTO tbl_board(title, content, writer) VALUES (#{title}, #{content}, #{writer})
+    </insert>
+    
+    <!-- 게시물 작성하기 + 작성할 때, 생성되는 seqence_number 바인딩 -->
+    <insert id="insertSelectKey">
+        <selectKey keyProperty="bno" order="BEFORE" resultType="int">
+            <!-- SELECT "ISEQ$$_95260".nextval FROM dual -->
+            SELECT 
+                LAST_NUMBER 
+            FROM 
+                USER_SEQUENCES 
+            WHERE 
+                sequence_name = 'ISEQ$$_95260'
+        </selectKey>
+            INSERT INTO tbl_board(bno, title, content, writer)
+            VALUES (#{bno}, #{title}, #{content}, #{writer})
+    </insert>
+
+    <!-- 기존게시물 상세 조회 -->
+    <!-- <select id="select" resultType="org.zerock.myapp.domain.BoardVO">
+        SELECT * FROM tbl_board WHERE bno = #{bno}
+    </select> -->
+
+    <!-- 기존게시물 상세 조회 + tbl_attach Join -->
+    <!-- <select id="select" resultType="org.zerock.myapp.domain.BoardVO">
+        SELECT
+            *
+        FROM tbl_board T1, tbl_attach T2
+        WHERE T1.bno = #{bno}
+        AND T1.bno = T2.bno(+)
+    </select> -->
+
+
+    <!-- 기존게시물 수정하기 -->
+    <update id="update">
+        UPDATE tbl_board
+        SET
+            title=#{title},
+            content=#{content},
+            writer=#{writer},
+            update_ts=current_date
+        WHERE
+            bno=#{bno}
+    </update>
+    
+    <!-- 페이징 처리된 게시물 불러오기 -->
+    <select id="selectListWithPaging" resultType="org.zerock.myapp.domain.BoardVO">
+        SELECT /*+ index_desc(tbl_board) */ *
+        FROM tbl_board
+        OFFSET (#{currPage} - 1 ) * #{amount} ROWS
+        FETCH NEXT #{amount} ROWS ONLY 
+    </select>
+    
+    <!-- 게시물 총 개수 조회 -->
+    <select id="getTotalCount" resultType="int">
+        SELECT /*+ index(tbl_board) */ count(bno) FROM tbl_board
+    </select>
+    
+    <!-- 게시물 댓글개수 조회 -->
+    <select id="getTotalCountReply" resultType="int">
+    	SELECT /*+ index(tbl_reply) */ count(rno) FROM tbl_reply WHERE bno = #{bno}
+    </select>
+
+    <!-- 기존 게시물 상세조회 + 이미지 다중 바인딩 -->
+    <resultMap id="boardVO" type="org.zerock.myapp.domain.BoardVO">
+        <result column="bno" property="bno"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="writer" property="writer"/>
+        <result column="insert_ts" property="insert_ts"/>
+        <result column="update_ts" property="update_ts"/>
+        <result column="replyCnt" property="replyCnt"/>
+        <collection 
+                    property="list" 
+                    resultMap="attachVO">
+        </collection>
+    </resultMap>
+
+    <resultMap id="attachVO" type="org.zerock.myapp.domain.BoardAttachVO">
+        <result column="attach_no" property="attach_no"/>
+        <result column="uuid" property="uuid"/>
+        <result column="uploadPath" property="uploadPath"/>
+        <result column="fileName" property="fileName"/>
+    </resultMap>
+
+    <select id="select" resultMap="boardVO">
+        SELECT
+            *
+        FROM tbl_board T1, tbl_attach T2
+        WHERE T1.bno = #{bno}
+        AND T1.bno = T2.bno(+)
+    </select>
+
+</mapper>

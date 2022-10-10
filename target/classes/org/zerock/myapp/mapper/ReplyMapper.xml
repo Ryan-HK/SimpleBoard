@@ -1,0 +1,42 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="org.zerock.myapp.mapper.ReplyMapper">
+
+    <insert id="insert">
+        INSERT INTO tbl_reply (rno, bno, reply, replyer)
+        VALUES (seq_reply.nextval, #{bno}, #{reply}, #{replyer})
+    </insert>
+
+    <select id="read" resultType="org.zerock.myapp.domain.ReplyVO">
+    	SELECT * FROM tbl_reply WHERE rno = ${rno}
+    </select>
+
+	<update id="update">
+		UPDATE tbl_reply SET reply = #{reply}, updateDate = current_date
+		WHERE rno = #{rno}
+	</update>
+	
+	<select id="getListWithPaging" resultType="org.zerock.myapp.domain.ReplyVO">
+	    SELECT /*+ index_asc(tbl_reply) */ *
+        FROM tbl_reply
+        WHERE bno = #{bno}
+        OFFSET (#{cri.currPage} - 1 ) * #{cri.amount} ROWS
+        FETCH NEXT #{cri.amount} ROWS ONLY 
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+		SELECT /*+ index(tbl_reply) */ count(rno)
+		FROM tbl_reply
+		WHERE bno = #{bno}
+	</select>
+
+	<update id="updateReplyCnt">
+		UPDATE tbl_board
+		SET replycnt = replycnt + #{amount}
+		WHERE bno = #{bno}
+	</update>
+	
+
+</mapper>

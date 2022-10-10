@@ -1,0 +1,65 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.zerock.myapp.mapper.FileUploadMapper">
+    
+    <!-- 파일저장 -->
+    <insert id="fileInsert">
+        INSERT INTO tbl_attach (uuid, uploadPath, fileName, bno)
+        VALUES (
+            #{uuid},
+            #{uploadPath},
+            #{fileName},
+            #{bno}
+        )
+    </insert>
+
+    <!-- 파일삭제 -->
+    <delete id="fileDelete">
+        DELETE FROM tbl_attach
+        WHERE attach_no IN
+            <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+    </delete>
+
+    <!-- 파일수정 -->
+    <update id="fileModify">
+        UPDATE tbl_attach
+        SET
+            uuid = #{uuid},
+            uploadPath = #{uploadPath},
+            fileName = #{fileName}
+        WHERE 
+            attach_no = #{attach_no}
+    </update>
+
+    <!-- 물리적 삭제 파일정보 얻기 by Attach_NO -->
+    <select id="getDeleteAttachDTO" resultType="org.zerock.myapp.domain.BoardAttachDTO">
+        SELECT *
+        FROM tbl_attach
+        WHERE attach_no IN 
+            <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+    </select>
+
+
+    <!-- 물리적 삭제 파일정보 얻기 by Attach_NO -->
+    <select id="getDeleteAttachDTObyBno" resultType="org.zerock.myapp.domain.BoardAttachDTO">
+        SELECT *
+        FROM tbl_attach
+        WHERE bno = #{bno}
+    </select>
+
+    <!-- 어제날짜에 저장된 파일 얻기 -->
+    <select id="getYesterdayFileList" resultType="org.zerock.myapp.domain.BoardAttachVO">
+        SELECT *
+        FROM tbl_attach
+        WHERE 
+            uploadPath = 'C:/Temp/upload/' || to_char(current_date-1, 'yyyyMMdd')
+    </select>
+    
+
+</mapper>   
