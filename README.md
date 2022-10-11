@@ -1,7 +1,8 @@
 # SimpleBoard
-Spring을 이용한 게시판 Toy-Project
+**Spring을 이용한 게시판 Toy-Project**
 
-![image](https://user-images.githubusercontent.com/94878359/194948755-d6fd705c-021a-4842-a0a1-b8283a7715c2.png)
+![image](https://user-images.githubusercontent.com/94878359/194989995-c02a2e8f-be17-41a8-bc96-ff6589d80eed.png)
+
 
 **Spring framework, MyBatis를 이용한 간단 게시판**
 
